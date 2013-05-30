@@ -3,7 +3,7 @@ module StartupGiraffe
     module Controller
       def self.included base
         Rails.application.routes.draw do
-          match( "/processed_images/:img_protocol/:img_host/:img_path" => "startup_giraffe/uncut/controller#cut_image",
+          match( "/processed_images/:img_protocol/:img_host/:img_path" => "application#cut_image",
                         :via => :get,
                         :constraints => {
                             :host => /[^\/]+/,
