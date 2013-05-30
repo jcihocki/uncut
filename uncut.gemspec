@@ -6,7 +6,7 @@ require "startup_giraffe/uncut/version"
 
 Gem::Specification.new do |s|
   s.name        = "uncut"
-  s.version     = StartupGiraffe::DatabaseAuthUser::VERSION
+  s.version     = StartupGiraffe::Uncut::VERSION
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Johnny Cihocki"]
   s.email       = ["john@startupgiraffe.com"]
