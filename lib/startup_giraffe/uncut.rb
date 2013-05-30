@@ -15,4 +15,5 @@ end
 require 'startup_giraffe/uncut/image'
 if defined?(::Rails)
   require 'startup_giraffe/uncut/controller'
+  require 'startup_giraffe/uncut/helper'
 end
