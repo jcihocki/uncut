@@ -20,6 +20,8 @@ module StartupGiraffe
 
       def cut_image
         @img = StartupGiraffe::Uncut::Image.new( params[:img_host], params[:img_path], params[:style], params[:img_protocol] )
+        @img.download_and_process
+        render :text => File.read( @img.file_name ), :content_type => @img.mime_type
       end
     end
   end
