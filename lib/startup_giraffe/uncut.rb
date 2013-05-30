@@ -13,3 +13,6 @@ module StartupGiraffe
 end
 
 require 'startup_giraffe/uncut/image'
+if defined?(::Rails)
+  require 'startup_giraffe/uncut/controller'
+end
