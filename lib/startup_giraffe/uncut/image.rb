@@ -20,6 +20,7 @@ module StartupGiraffe
       define_model_callbacks :save
       define_model_callbacks :destroy
 
+      ENV['TMPDIR'] ||= "/tmp"
       @tmp_dir = ENV['TMPDIR'].gsub( /\/$/, '' )
       @paperclip_path = ":tmp_dir/:uri_hash.:style.image"
       class << self; attr_accessor :tmp_dir, :paperclip_path ; end
