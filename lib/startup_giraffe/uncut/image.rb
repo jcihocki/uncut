@@ -31,7 +31,7 @@ module StartupGiraffe
 
       attr_accessor :uri_hash, :mime_type, :file_name, :attachment_file_name, :attachment_file_size
 
-      def initialize host, path, style, port = nil, protocol = "http"
+      def initialize host, path, style, protocol = "http", port = nil
         @host, @path, @dynamic_style_format, @port, @protocol = host, path, style, port, protocol
         @uri = URI.parse( "#{@protocol}://#{@host}#{':' + @port if @port}/#{@path}" )
         @uri_hash = HMAC::SHA1.hexdigest( "", @uri.to_s )

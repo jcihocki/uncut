@@ -7,13 +7,14 @@ module StartupGiraffe
 
       module ClassMethods
         def uncut_routes routing
-          routing.match( "/processed_images/:img_protocol/:img_host/:img_path" => "application#cut_image",
+          routing.match( "/processed_images(/:img_protocol(/:img_host(/:img_path)))" => "application#cut_image",
                         :via => :get,
                         :as => :processed_image,
                         :constraints => {
-                            :host => /[^\/]+/,
-                            :path => /.*/
-                        }
+                            :img_host => /[^\/]+/,
+                            :img_path => /.+/
+                        },
+                        :format => false
           )
         end
       end
