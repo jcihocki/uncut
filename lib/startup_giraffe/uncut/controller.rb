@@ -2,8 +2,12 @@ module StartupGiraffe
   module Uncut
     module Controller
       def self.included base
-        Rails.application.routes.draw do
-          match( "/processed_images/:img_protocol/:img_host/:img_path" => "application#cut_image",
+        base.send( :extend, ClassMethods )
+      end
+
+      module ClassMethods
+        def uncut_routes routing
+          routing.match( "/processed_images/:img_protocol/:img_host/:img_path" => "application#cut_image",
                         :via => :get,
                         :constraints => {
                             :host => /[^\/]+/,
