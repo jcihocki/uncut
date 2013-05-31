@@ -1,8 +1,7 @@
 require 'hmac-sha1'
 require 'net/http'
 require 'uri'
-require 'bson'
-require 'rmagick'
+require 'RMagick'
 
 module StartupGiraffe
   module Uncut
