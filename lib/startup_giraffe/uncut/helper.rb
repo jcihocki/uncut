@@ -5,10 +5,10 @@ module StartupGiraffe
         parsed_uri = URI.parse( image_uri )
         path = parsed_uri.request_uri
         path.slice!(0,1)
-        processed_image_url(
+        processed_image_path(
             img_protocol: parsed_uri.scheme,
             img_host: parsed_uri.host,
-            img_path: URI.encode_www_form_component( path ),
+            img_path: path.split( "/" ).collect { |seg| URI.encode_www_form_component( seg ) }.join( "/" ),
             style: style
         )
       end
