@@ -3,12 +3,8 @@ require 'spec_helper'
 
 describe StartupGiraffe::Uncut::Image do
   before {
-    @test_img_uri = URI.parse( "http://dealix.images.dmotorworks.com/400365/1GYS4CEF3BR185018/full/1.jpg?#{BSON::ObjectId.new.to_s}" )
+    @test_img_uri = URI.parse( "http://dealix.images.dmotorworks.com/400365/1GYS4CEF3BR185018/full/1.jpg" )
     @img = StartupGiraffe::Uncut::Image.new( @test_img_uri.host, @test_img_uri.request_uri, "100x100>" )
-  }
-
-  after {
-    Kernel.system( "rm -rf #{StartupGiraffe::Uncut::Image.tmp_dir}/*" )
   }
 
   context "when cutting to 100x100>" do
@@ -69,7 +65,7 @@ describe StartupGiraffe::Uncut::Image do
 
   context "when image 404s" do
     before {
-      @test_img_uri = URI.parse( "http://dealix.images.dmotorworks.com/400365ssssssss/1GYS4CEF3BR185018/full/1.jpg?#{BSON::ObjectId.new.to_s}" )
+      @test_img_uri = URI.parse( "http://dealix.images.dmotorworks.com/400365ssssssss/1GYS4CEF3BR185018/full/1.jpg" )
       @img = StartupGiraffe::Uncut::Image.new( @test_img_uri.host, @test_img_uri.request_uri, "100x100>" )
     }
 
@@ -82,7 +78,7 @@ describe StartupGiraffe::Uncut::Image do
 
   context "when hostname bad" do
     before {
-      @test_img_uri = URI.parse( "http://ssssdealix.images.dmotorworks.comss/400365ssssssss/1GYS4CEF3BR185018/full/1.jpg?#{BSON::ObjectId.new.to_s}" )
+      @test_img_uri = URI.parse( "http://ssssdealix.images.dmotorworks.comss/400365ssssssss/1GYS4CEF3BR185018/full/1.jpg" )
       @img = StartupGiraffe::Uncut::Image.new( @test_img_uri.host, @test_img_uri.request_uri, "100x100>" )
     }
 
