@@ -29,8 +29,9 @@ module StartupGiraffe
           @img.download_and_process
           response.headers["Cache-Control"] = self.class.cache_control
           response.headers["Expires"] = 1.year.from_now.httpdate
-          render :text => File.read( @img.file_name ), :content_type => @img.mime_type
+          render :text => @img.data, :content_type => @img.mime_type
         rescue StartupGiraffe::Uncut::ImageDownloadError
+          Rails.logger.debug( $!.message )
           head :not_found
         end
       end

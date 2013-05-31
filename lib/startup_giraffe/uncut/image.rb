@@ -1,8 +1,8 @@
-require 'paperclip'
 require 'hmac-sha1'
 require 'net/http'
 require 'uri'
 require 'bson'
+require 'rmagick'
 
 module StartupGiraffe
   module Uncut
@@ -29,7 +29,7 @@ module StartupGiraffe
         :styles => Proc.new { |attachment| attachment.instance.styles },
         :path => @paperclip_path
 
-      attr_accessor :uri_hash, :mime_type, :file_name, :attachment_file_name, :attachment_file_size
+      attr_accessor :uri_hash, :mime_type, :file_name, :data, :attachment_file_name, :attachment_file_size
 
       def initialize host, path, style, protocol = "http", port = nil
         @host, @path, @dynamic_style_format, @port, @protocol = host, path, style, port, protocol
@@ -76,31 +76,43 @@ module StartupGiraffe
           @mime_type = File.read( "#{tmp_path}.mime" ).strip
           @file_name = cut_path
         else
-          http.request( req ) do |resp|
-            if resp.code.to_i == 200
-              @mime_type = resp['content-type']
-              File.open( "#{tmp_path}.mime", "w" ) do |file|
-                file.write( @mime_type )
-              end
-              File.open( tmp_path, "wb" ) do |file|
-                resp.read_body do |chunk|
-                  file.write( chunk )
+          begin
+            http.request( req ) do |resp|
+              if resp.code.to_i == 200
+                @mime_type = resp['content-type']
+                File.open( "#{tmp_path}.mime", "w" ) do |file|
+                  file.write( @mime_type )
                 end
+                begin
+                  rmagick_img = Magick::Image::from_blob( resp.body ).first
+                  @data = rmagick_img.change_geometry( @dynamic_style_format ) do |w, h|
+                    rmagick_img.resize_to_fill( w, h ).to_blob
+                  end
+                rescue Magick::ImageMagickError
+                  raise ImageDownloadError,  "Content at uri #{@uri.to_s}, couldn't be parsed as an img (Content type was #{resp['content-type']})"
+                end
+                #File.open( tmp_path, "wb" ) do |file|
+                #  resp.read_body do |chunk|
+                #    file.write( chunk )
+                #  end
+                #end
+                #
+                #File.open( tmp_path, "rb" ) do |file|
+                #  self.attachment = file
+                #  run_callbacks :save
+                #  puts "Attachment file name"
+                #  @file_name = self.attachment.path(dynamic_style_format_symbol)
+                #end
+              elsif resp.is_a?( Net::HTTPRedirection )
+                @uri = URI.parse( resp['location'] )
+                compute_uri_hash!
+                download_and_process
+              else
+                raise ImageDownloadError,  "Couldn't download image at uri #{@uri.to_s}, server returned status: #{resp.code}"
               end
-
-              File.open( tmp_path, "rb" ) do |file|
-                self.attachment = file
-                run_callbacks :save
-                puts "Attachment file name"
-                @file_name = self.attachment.path(dynamic_style_format_symbol)
-              end
-            elsif resp.is_a?( Net::HTTPRedirection )
-              @uri = URI.parse( resp['location'] )
-              compute_uri_hash!
-              download_and_process
-            else
-              raise ImageDownloadError,  "Couldn't download image at uri #{@uri.to_s} (status: #{resp.code})"
             end
+          rescue SocketError
+            raise ImageDownloadError,  "Couldn't download image at uri #{@uri.to_s}, couldn't connect to @host#{' on port ' + @port if @port}"
           end
         end
       end

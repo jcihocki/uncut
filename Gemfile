@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'paperclip'
+gem 'rmagick'
 gem 'ruby-hmac'
 gem 'bson'
 
