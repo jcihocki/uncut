@@ -33,7 +33,12 @@ module StartupGiraffe
 
       def initialize host, path, style, protocol = "http", port = nil
         @host, @path, @dynamic_style_format, @port, @protocol = host, path, style, port, protocol
+        @path.slice!(0,1) if @path[0] == "/"
         @uri = URI.parse( "#{@protocol}://#{@host}#{':' + @port if @port}/#{@path}" )
+        compute_uri_hash!
+      end
+
+      def compute_uri_hash!
         @uri_hash = HMAC::SHA1.hexdigest( "", @uri.to_s )
       end
 
@@ -62,8 +67,8 @@ module StartupGiraffe
       end
 
       def download_and_process
-        http = Net::HTTP.new( @host, @port )
-        http.use_ssl = (@protocol == "https")
+        http = Net::HTTP.new( @uri.host, @uri.port )
+        http.use_ssl = (@uri.scheme == 'https')
         req = Net::HTTP::Get.new(@uri.request_uri)
         tmp_path = [self.class.tmp_dir, @uri_hash].join( "/" )
         cut_path = self.attachment.send( :interpolate, self.class.paperclip_path, self.dynamic_style_format_symbol )
@@ -89,6 +94,10 @@ module StartupGiraffe
                 puts "Attachment file name"
                 @file_name = self.attachment.path(dynamic_style_format_symbol)
               end
+            elsif resp.is_a?( Net::HTTPRedirection )
+              @uri = URI.parse( resp['location'] )
+              compute_uri_hash!
+              download_and_process
             else
               raise ImageDownloadError,  "Couldn't download image at uri #{@uri.to_s} (status: #{resp.code})"
             end
