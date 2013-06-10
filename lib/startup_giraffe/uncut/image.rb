@@ -21,18 +21,6 @@ module StartupGiraffe
         @uri_hash = HMAC::SHA1.hexdigest( "", @uri.to_s )
       end
 
-      def dynamic_style_format_symbol
-        URI.escape(@dynamic_style_format).to_sym
-      end
-
-      def styles
-        unless @dynamic_style_format.blank?
-          { dynamic_style_format_symbol => @dynamic_style_format }
-        else
-          {}
-        end
-      end
-
       def id
         BSON::ObjectId.new.to_s
       end
@@ -54,9 +42,15 @@ module StartupGiraffe
             if resp.code.to_i == 200
               @mime_type = resp['content-type']
               begin
-                rmagick_img = Magick::Image::from_blob( resp.body ).first
-                @data = rmagick_img.change_geometry( @dynamic_style_format ) do |w, h|
-                  rmagick_img.resize_to_fill( w, h ).to_blob
+
+                if !@dynamic_style_format.blank?
+                  rmagick_img = Magick::Image::from_blob( resp.body ).first
+
+                  @data = rmagick_img.change_geometry( @dynamic_style_format ) do |w, h|
+                    rmagick_img.resize_to_fill( w, h ).to_blob
+                  end
+                else
+                  @data = resp.body
                 end
               rescue Magick::ImageMagickError
                 raise ImageDownloadError,  "Content at uri #{@uri.to_s}, couldn't be parsed as an img (Content type was #{resp['content-type']})"

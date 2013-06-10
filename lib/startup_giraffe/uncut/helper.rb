@@ -1,7 +1,7 @@
 module StartupGiraffe
   module Uncut
     module Helper
-      def processed_image_uri_for image_uri, style
+      def processed_image_uri_for image_uri, style = ""
         parsed_uri = URI.parse( image_uri )
         path = parsed_uri.request_uri
         path.slice!(0,1)
