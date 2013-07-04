@@ -33,6 +33,8 @@ module StartupGiraffe
         rescue StartupGiraffe::Uncut::ImageDownloadError
           Rails.logger.debug( $!.message )
           head :not_found
+        rescue
+          head :gateway_timeout
         end
       end
     end

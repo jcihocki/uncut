@@ -37,15 +37,15 @@ module StartupGiraffe
         http = Net::HTTP.new( @uri.host, @uri.port )
         http.use_ssl = (@uri.scheme == 'https')
         req = Net::HTTP::Get.new(@uri.request_uri)
+        http.open_timeout = 1
+        http.read_timeout = 2
         begin
           http.request( req ) do |resp|
             if resp.code.to_i == 200
               @mime_type = resp['content-type']
               begin
-
-                if !@dynamic_style_format.blank?
+                if @dynamic_style_format.to_s != ""
                   rmagick_img = Magick::Image::from_blob( resp.body ).first
-
                   @data = rmagick_img.change_geometry( @dynamic_style_format ) do |w, h|
                     rmagick_img.resize_to_fill( w, h ).to_blob
                   end
