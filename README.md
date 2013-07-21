@@ -1,4 +1,4 @@
-=== Uncut: On demand image processing ===
+# Uncut: On demand image processing #
 
 Instead of using paperclip to process your images at upload, you can use uncut to 
 lazily proxy and resize your images as they are requested by the browser. This allows 
